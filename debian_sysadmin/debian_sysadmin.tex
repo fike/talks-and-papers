@@ -1,0 +1,296 @@
+\documentclass{beamer}
+
+\mode<presentation>
+\usetheme{Warsaw}
+\usefonttheme[onlylarge]{structurebold}
+\usecolortheme[RGB={255,0,0}]{structure}
+\setbeamerfont{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+%\setbeamertemplate{background canvas}{bg=gray}
+\setbeamertemplate{background canvas}{\includegraphics[width=\paperwidth,height=\paperheight]{images/openlogo-nd.eps}}
+\setbeamercovered{transparent=95}
+\setbeamertemplate{blocks}[rounded][shadow=true]
+%\setbeamersize{margin left=0.5cm,margin right=-1cm}
+
+
+
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\tikzstyle{block}=[draw opacity=0.7,line width=1.4cm]
+
+\title[Sysadmin: O que você é e como usar o Debian para ser um sysadmin melhor]
+{%
+   Sysadmin: O que você é e como usar o Debian para ser um sysadmin melhor%
+}
+
+\author[Fernando Ike de Oliveira]
+{
+   \textcolor{black}{Fernando Ike de Oliveira}%\inst{1}
+}
+
+\institute[Debian-BR]
+%{
+% \inst{1}%
+% \textcolor{black}{Debian}
+%}
+
+\date[Short Occasion]
+{1º /dev/net}
+%\logo{\includegraphics[scale=0.1]{images/b2br}}
+%\logo{\includegraphics[scale=0.1,center]{images/pgbr.eps}}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{O que é um sysadmin?}
+    \begin{block}{É um...}
+        \begin{itemize}
+         \item Analista de suporte?
+         \item Analista de sistema?
+         \item Analista de rede?
+         \item Desenvolvedor?
+         \item DBA?
+         \item Operador de backup?
+         \item Técnico de Hardware?
+	 \end{itemize}
+    \end{block}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Definição}
+        \begin{block}{Um sysadmin segundo wikipedia é...}
+	 \begin{itemize}
+	    \item É um profissional que mantém e opera um systema de computação e rede. Usualmente ele instala, mantém e administra servidores. Dentre suas tarefas inclui programação (scripting), gerenciamento de projeto e de operadores.
+	    \item Andrelop diz: Só idiotas podem fazer o que fazemos e ainda gosta dele, por isso, nós somos malucos
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{O que realmente o sysadmin faz...}
+        \begin{block}{ }
+	 \begin{itemize}
+	    \item É o Suporte Técnico
+	    \item É responsável pelo backup
+	    \item É responsável pela rede
+	    \item É responsável pelo banco de dados
+	    \item É responsável segurança
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Coisas que não são boas\dots}
+  \begin{center}
+     \pgfputat{\pgfxy(-113,-100)}{\pgfimage[width=\paperwidth,height=\paperheight]{images/donttouch.eps}}
+         \par
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Coisas que não são boas\dots}
+  \begin{center}
+     \pgfputat{\pgfxy(-113,-100)}{\pgfimage[width=\paperwidth,height=\paperheight]{images/before.eps}}
+         \par
+  \end{center}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Coisas de um péssimo sysadmin}
+        \begin{block}{Nunca faça ou seja}
+	 \begin{itemize}
+	    \item Um fanboy
+	    \item Reativo
+	    \item Não ser organizado
+	    \item Não documentar
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Um bom sysadmin}
+        \begin{block}{Boas práticas}
+	 \begin{itemize}
+	    \item Documentar
+	    \item Cria processos
+	    \item Não ter sempre a razão
+	    \item Seu usuário é seu principal cliente
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+
+
+\begin{frame}{Se for um bom sysadmin\dots}
+  \begin{center}
+     \pgfputat{\pgfxy(-113,-100)}{\pgfimage[width=\paperwidth,height=\paperheight]{images/after.eps}}
+         \par
+  \end{center}
+\end{frame}
+
+
+
+\begin{frame}
+    \frametitle{Argumentos para convencer seu chefe usar Debian}
+        \begin{block}{Convença seu chefe}
+	 \begin{itemize}
+	    \item ciclo de lançamento
+	    \item estabalidade
+	    \item atualizações de segurança não quebram os pacotes
+	    \item custo inicial baixo
+	    \item suporte
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Argumentos para convencer seus colegas de trabalho}
+        \begin{block}{Convença seus amigos}
+	 \begin{itemize}
+	    \item Pela preguiça (repetição de trabalhos chatos)
+	    \item Pela cobiça (ajudar ao projeto)
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Projetos criados pelo Debian...}
+        \begin{block}{... e copiados pelos projetos }
+	 \begin{itemize}
+	    \item alternatives
+	    \item menu
+	    \item comunidade
+	    \item pacotes e dependência
+	    \item DFSG
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{coisas que o Debian tem para você}
+        \begin{block}{ }
+	 \begin{itemize}
+	    \item cron-apt 
+%	    \item unattended-upgrades
+%	    \item logbook com dch 
+%	    \item logwatch
+	    \item apt pinning 
+	    \item diversion
+	    \item alternative
+	    \item debconf 
+	    \item debsums
+	    \item apache2
+	    \item postgresql
+            \item FAI
+	    \item Debian-Installer
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{coisas que o Debian tem para você}
+        \begin{block}{ }
+	 \begin{itemize}
+ 	   \item CFengine
+	   \item debmirror
+	   \item live-helper
+	   \item equivs
+	   \item statoverride
+	   \item selinux
+	   \item pax/grsecurity
+	   \item Virtualização (XEN, Qemu, KVM, Vserver, Virtualbox, Bochs)
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+
+
+\begin{frame}
+    \frametitle{onde vc tem que ler}
+        \begin{block}{leitura obrigatória}
+	 \begin{itemize}
+	    \item lista debian-announce
+	    \item lista debian-news
+	    \item lista debian-security
+	    \item site bugs.debian.org
+	    \item changelog.Debian.gz, README.Debian.gz
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Mantra dos pacotes}
+        \begin{block}{boas práticas}
+	 \begin{itemize}
+	    \item nunca misture os repositorios
+	    \item nao use apt-get
+	    \item aptitude é seu amigo 
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{o que é bom saber}
+        \begin{block}{não deixe de aprender}
+	 \begin{itemize}
+            \item linguagem de programação (Perl, Python, Ruby)
+	    \item ferramentas de depuração e trace
+            \item resolução de gargalos e performence
+         \end{itemize}
+    \end{block}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{\textbf{Referência}}
+    \begin{block}{ }
+        \begin{itemize}
+            \item {\textit{\url{http://lists.debian.org}}}
+            \item {\textit{\url{http://wiki.debian.org}}}
+            \item {\textit{\url{http://www.debian.org/doc}}}
+        \end{itemize}
+    \end{block}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+    \frametitle{\textbf{Conclusão}}
+    \begin{block}{Contatos:}
+        \begin{itemize}
+            \item {\texttt{fernando.ike@b2br.com.br}}
+            \item {\texttt{fernando.ike@gmail.com}}
+            \item {\textit{\url{ http://www.midstorm.org/~fike/weblog}}}
+        \end{itemize}
+    \end{block}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{\textbf{Conclusão}}
+    \begin{exampleblock}{Contatos:}
+        \begin{itemize}
+            \item {\texttt{fernando.ike@b2br.com.br}}
+            \item {\texttt{fernando.ike@gmail.com}}
+            \item {\textit{\url{ http://www.midstorm.org/~fike/weblog}}}
+        \end{itemize}
+    \end{exampleblock}
+
+\end{frame}
+
+
+
+\end{document}

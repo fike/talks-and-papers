@@ -1,0 +1,239 @@
+ PL/Proxy é uma linguagem usada para chamadas procedurais e particionamento de banco de dados usando hash dos dados.
+
+ PL/Proxy é uma linguagem procedural usada para fazer chamadas de funções em banco de dados remotos.
+
+ PL/Proxy sabe onde deve encaminhar a requisição de uma informação porque cria hash por valor/campo.
+ 
+ PL/Proxy é como um roteador de rede, encaminha a expressão SQL para o partição correta.
+
+
+"SELECT (hashtext('pgcon1'))%3" =  0
+"SELECT (hashtext('pgcon2'))%3" = -1
+"SELECT (hashtext('pgcon3'))%3" = -2
+"SELECT (hashtext('pgcon4'))%3" =  0
+"SELECT (hashtext('pgcon5'))%3" =  0
+"SELECT (hashtext('pgcon6'))%3" =  2
+"SELECT (hashtext('pgcon7'))%3" = -1
+"SELECT (hashtext('pgcon8'))%3" =  0
+"SELECT (hashtext('pgcon9'))%3" =  0
+"SELECT (hashtext('pgcon10'))%3" = 0
+
+
+conexão com os banco de dados devem estar trust
+
+
+
+
+
+
+PlProxy Language
+
+ The language is similar to plpgsql - string quoting, comments, semicolon at the
+  statements end.It contains only 4 statements: CONNECT, CLUSTER, RUN and
+  SELECT.
+ Each function needs to have either CONNECT or pair of CLUSTER + RUN
+  statements to specify where to run the function.
+ CONNECT 'libpq connstr'; -- Specifies exact location where to connect and
+  execute the query. If several functions have same connstr, they will use same
+  connection.
+ CLUSTER 'cluster_name'; -- Specifies exact cluster name to be run on. The cluster
+  name will be passed to plproxy.get_cluster_* functions.
+ CLUSTER cluster_func(..); -- Cluster name can be dynamically decided upon
+  proxy function arguments. cluster_func should return text value of final cluster
+  name.
+
+
+
+
+              Remote Calls
+ We use remote calls mostly for read only queries in cases where it is not reasonable
+  to replicate data needed to calling database.
+ For example balance data is changing very often but whenever doing decisions
+  based on balance we must use the latest balance so we use remote call to get user
+  balance.
+ Another use case when occasionally archived data is needed together with online
+  data.
+
+
+
+
+
+
+            Remote Calls (update)
+ plProxy remote calls inside transactions that change data in remote database
+  should have special handling
+ no 2 phase commit
+ some mechanism should be used to handle possible problems like inserting events
+  into PgQ queue and let consumer validate that transaction was committed or rolled
+  back and act accordingly.
+
+
+
+plProxy: Proxy Databases
+  Additional layer between application and databases.
+ Keep applications database connectivity simpler giving DBA's and developer's more
+  flexibility for moving data and functionality around.
+ Security layer. By giving access to proxy database DBA's can be sure that user has
+  no way of accessing tables by accident or by any other means as only functions
+  published in proxy database are visible to user.
+
+
+
+
+plProxy: Remote Calls (update)
+  plProxy remote calls inside transactions that change data in remote database
+   should have special handling
+  no 2 phase commit
+  some mechanism should be used to handle possible problems like inserting events
+   into PgQ queue and let consumer validate that transaction was committed or rolled
+   back and act accordingly.
+
+
+
+plProxy: Run On All      
+                         
+                         
+  Run on all executes query on all partitions in cluster once.
+Partitions are identified by connect strings.                   
+
+  Useful for gathering stats from several databases or database partitions.    
+                              
+  Also usable when exact partition where data resides is not known.      
+   Then function may be run on all partitions and only the one that has data does something.
+
+
+plProxy: Geographical
+  plProxy can be used to split database into partitions based on country code.
+   Example database is split into 'us' and 'row' (rest of the world)
+  Each function call caused by online users has country code as one of the
+   parameters
+  All data is replicated into internal database for use by internal applications and batch
+   jobs. That also reduces number of indexes needed in online databases.
+            
+
+plProxy: Partitioning Proxy Functions
+  We have partitioned most f our database by username using PostgreSQL hashtext
+   function to get equal distribution between partitions.
+  When splitting databases we usually prepare new partitions in other servers and
+   then switch all traffic at once to keep our life pleasant.
+  Multiple exact copies of proxy database are in use for scaleability and availability considerations.
+
+
+plProxy: Partitioning Partition Functions
+  Couple of functions in partconf schema added to each partition:
+     partconf.global_id() - gives globally unique keys
+     partconf.check_hash() - checks that function call is in right partition
+     partconf.valid_hash() - used as trigger function
+
+
+ plProxy adds 1-10ms overhead when used together with pgBouncer.
+ Quote from Gavin M. Roy's blog “After closely watching machine stats for the first 30
+  minutes of production, it appears that plProxy has very little if any impact on
+  machine resources in our infrastructure.”
+ On the other hand plProxy adds complexity to development and maintenance so it
+  must be used with care but that is true for most everything
+
+
+
+
+pgBouncer
+ pgBouncer is lightweight and robust connection pooler
+  for Postgres.
+                                                            Applications
+ Low memory requirements (2k per connection by default). This is due to the fact that PgBouncer does notneed to see full packet at once.                                       thousands of connections
+ It is not tied to one backend server, the destination
+  databases can reside on different hosts.
+                                                            pgBouncer
+  Supports pausing activity on all or only selected
+
+  databases.
+ Supports online reconfiguration for most of the settings.
+                                                                            tens of
+ Supports online restart/upgrade without dropping client                 connections
+  connections.
+ Supports protocol V3 only, so backend version must be
+                                                             Database
+  >= 7.4.
+ Does not parse SQL so is very fast and uses little CPU
+  time.
+
+
+
+
+pgBouncer Pooling Modes
+ Session pooling - Most polite method. When client connects, a server connection
+  will be assigned to it for the whole duration it stays connected. When client
+  disconnects, the server connection will be put back into pool. Should be used with
+  legacy applications that won't work with more efficient pooling modes.
+ Transaction pooling - Server connection is assigned to client only during a
+  transaction. When PgBouncer notices that transaction is over, the server will be put
+  back into pool. This is a hack as it breaks application expectations of backend
+  connection. You can use it only when application cooperates with such usage by not
+  using features that can break.
+  Statement pooling - Most aggressive method. This is transaction pooling with a
+
+  twist - multi-statement transactions are disallowed. This is meant to enforce
+  "autocommit" mode on client, mostly targeted for PL/Proxy.
+
+
+
+
+SkyTools
+ SkyTools - Python scripting framework and collection of useful database scripts.
+  Most of our internal tools are based on this framework.
+    (centralized) logging and exception handling
+    database connection handling
+    configuration management
+    starting and stopping scripts
+ Some of scripts provided by SkyTools
+    londiste – nice and simple replication tool
+    walmgr - wal standby management script
+    serial consumer – Script for executing functions based on data in queue
+    queue mover – Move events from one queue into another
+    queue splitter – Move events from one queue into several queues
+    table dispatcher – writes data from queue into partitioned table
+    cube dispatcher - writes data from queue into daily tables
+
+
+
+SkyTools: Queue Mover
+ Moves data from source queue in one database to another queue in other database.
+ Used to move events from online databases to queue databases.
+ We don't need to keep events in online database in case some consumer fails to
+  process them.
+ Consolidates events if there are several producers as in case of partitioned
+  databases.
+
+
+
+SkyTools: Queue Splitter
+ Moves data from source queue in one database to one or more queue's in target
+  database based on producer. That is another version of queue_mover but it has it's
+  own benefits.
+ Used to move events from online databases to queue databases.
+                                                                       promotional
+ Reduces number of dependencies of online databases.
+
+
+
+
+SkyTools: Table Dispatcher
+ Has url encoded events as data source and writes them into table on target
+  database.
+ Used to partiton data. For example change log's that need to kept online only shortly
+  can be written to daily tables and then dropped as they become irrelevant.
+ Also allows to select which columns have to be written into target database
+ Creates target tables according to configuration file as needed
+
+
+
+SkyTools: Cube Dispatcher
+ Has url encoded events as data source and writes them into partitoned tables in
+  target database. Logutriga is used to create events.
+ Used to provide batches of data for business intelligence and data cubes.
+ Only one instance of each record is stored. For example if record is created and
+  then updated twice only latest version of record stays in that days table.
+ Does not support deletes.
+
+
+
